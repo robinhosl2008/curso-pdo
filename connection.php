@@ -1,5 +1,15 @@
 <?php
 
-$pdo = new PDO('sqlite:database.sqlite');
+require_once 'vendor/autoload.php';
 
-echo 'Conectei'.PHP_EOL;
+$pathDatabase = __DIR__ . '/database.sqlite';
+$pdo = new PDO("sqlite:{$pathDatabase}");
+
+echo 'Connection success!'.PHP_EOL;
+
+$pdo->exec("
+    CREATE TABLE IF NOT EXISTS students (
+    id INTEGER PRIMARY KEY,
+    name TEXT,
+    birthDate TEXT);
+");

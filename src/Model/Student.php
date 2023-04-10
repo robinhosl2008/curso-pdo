@@ -1,14 +1,16 @@
 <?php
 
 namespace Alura\PDO\Model;
+use DateTimeImmutable;
+use DateTimeInterface;
 
 class Student
 {
     private ?int $id;
     private string $name;
-    private \DateTimeInterface $birthDay;
+    private DateTimeInterface $birthDay;
 
-    public function __construct(?int $id, string $name, \DateTimeInterface $birthDay)
+    public function __construct(?int $id, string $name, DateTimeInterface $birthDay)
     {
         $this->id = $id;
         $this->name = $name;
@@ -25,7 +27,7 @@ class Student
         return $this->name;
     }
 
-    public function birthDay(): \DateTimeInterface
+    public function birthDay(): DateTimeInterface
     {
         return $this->birthDay;
     }
@@ -33,7 +35,7 @@ class Student
     public function age(): int
     {
         return $this->birthDay
-            ->diff(new \DateTimeImmutable())
+            ->diff(new DateTimeImmutable())
             ->y;
     }
 }

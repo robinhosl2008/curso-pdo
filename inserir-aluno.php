@@ -1,6 +1,6 @@
 <?php
 use Alura\PDO\Infrastructure\Persistence\ConnectionFactory;
-use Alura\PDO\Model\Student;
+use Alura\PDO\Domain\Model\Student;
 
 require_once 'vendor/autoload.php';
 
@@ -13,7 +13,7 @@ $student = new Student(null, 'Robson Lourenço', $birthDate);
 $sql = "INSERT INTO students (name, birthDate) VALUES (:name, :birthDate)";
 $pdoStartment = $pdo->prepare($sql);
 $pdoStartment->bindValue(':name', $student->name());
-$pdoStartment->bindValue(':birthDate', $student->birthDay()->format('Y-m-d'));
+$pdoStartment->bindValue(':birthDate', $student->birthDate()->format('Y-m-d'));
 
 if ($pdoStartment->execute()) {
     echo "Student inserted.".PHP_EOL;

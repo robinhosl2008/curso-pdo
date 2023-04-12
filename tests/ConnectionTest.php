@@ -1,6 +1,7 @@
 <?php
 
-use Alura\PDO\Model\Student;
+use Alura\PDO\Domain\Model\Student;
+use Alura\PDO\Infrastructure\Repository\PdoStudentRepository;
 use PHPUnit\Framework\TestCase;
 
 require_once 'vendor/autoload.php';
@@ -10,6 +11,8 @@ class ConnectionTest extends TestCase
     private PDO $pdo;
     private array $result;
     private int $numberOfTables;
+    private Student $student;
+    private PdoStudentRepository $repository;
 
     public function setUp(): void
     {
@@ -23,17 +26,6 @@ class ConnectionTest extends TestCase
             name TEXT,
             birthDate TEXT);
         ");
-
-        $sql = "SELECT COUNT() FROM sqlite_master WHERE type = 'table' AND name = 'students';";
-        $pdoQuery = $this->pdo->query($sql);
-        $this->numberOfTables = $pdoQuery->fetchAll()[0][0];
-
-        // Adding registry in the table.
-        $birthDate = new DateTimeImmutable('1982-03-27');
-        $student = new Student(null, 'Robson Lourenço', $birthDate);
-        $sql = "INSERT INTO students (name, birthDate) VALUES ('{$student->name()}', '{$student->birthDay()->format('Y-m-d')}')";
-        $this->pdo->exec($sql);
-
     }
 
     public function testVerifingIfConnectionWithDatabaseHasCreated(): void
@@ -43,18 +35,25 @@ class ConnectionTest extends TestCase
 
     public function testVerifyIfTheTableHasCreated(): void
     {
+        $sql = "SELECT COUNT() FROM sqlite_master WHERE type = 'table' AND name = 'students';";
+        $pdoQuery = $this->pdo->query($sql);
+        $this->numberOfTables = $pdoQuery->fetchAll()[0][0];
+
         self::assertEquals(1, $this->numberOfTables);
     }
 
     public function testVerifingIfStudentsTableHasData(): void
     {
-        $sql = "SELECT * FROM students";
-        $pdoQuery = $this->pdo->query($sql);
-        $this->result = $pdoQuery->fetchAll(PDO::FETCH_ASSOC);
+        $birthDate = new DateTimeImmutable('1982-03-27');
+        $this->student = new Student(null, 'Teste', $birthDate);
+        
+        $this->repository = new PdoStudentRepository($this->pdo);
+        $this->repository->insert($this->student);
+        $this->result = $this->repository->allStudents();
         
         self::assertCount(1, $this->result);
-        self::assertEquals("Robson Lourenço", $this->result[0]['name']);
-        self::assertEquals("1982-03-27", $this->result[0]['birthDate']);
+        self::assertEquals("Teste", $this->result[0]->name());
+        self::assertEquals("1982-03-27", $this->result[0]->birthDate()->format('Y-m-d'));
     }
 
     public function tearDown(): void

@@ -1,11 +1,10 @@
 <?php
+use Alura\PDO\Infrastructure\Persistence\ConnectionFactory;
 
 require_once 'vendor/autoload.php';
 
-$pathDatabase = __DIR__ . '/database.sqlite';
-$pdo = new PDO("sqlite:{$pathDatabase}");
-
-echo 'Connection success!'.PHP_EOL;
+$conn = new ConnectionFactory();
+$pdo = $conn->getPdo();
 
 $pdo->exec("
     CREATE TABLE IF NOT EXISTS students (
@@ -13,3 +12,5 @@ $pdo->exec("
     name TEXT,
     birthDate TEXT);
 ");
+
+echo 'Connection success!'.PHP_EOL;

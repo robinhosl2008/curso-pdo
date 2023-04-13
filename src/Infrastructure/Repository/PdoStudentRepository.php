@@ -2,6 +2,7 @@
 
 namespace Alura\PDO\Infrastructure\Repository;
 
+use Alura\PDO\Domain\Model\Phone;
 use DateTimeImmutable;
 use PDO;
 use DateTimeInterface;
@@ -17,6 +18,26 @@ class PdoStudentRepository implements StudentRepository
     public function __construct(PDO $connection)
     {
         $this->pdo = $connection;
+    }
+
+    public function allStudentWithPhones(): array
+    {
+        $stmt = $this->pdo->query("
+            SELECT
+                s.*
+            FROM students s
+            INNER JOIN phones p ON p.student_id = s.id
+            GROUP BY s.id
+        ");
+
+        $students = $this->hydrateStudentList($stmt);
+
+        $arrStudents = [];
+        foreach ($students as $student) {
+            $arrStudents[] = $this->fillPhoneOf($student);
+        }
+
+        return $arrStudents;
     }
 
     public function allStudents(): array
@@ -49,6 +70,31 @@ class PdoStudentRepository implements StudentRepository
         }
 
         return $studentList;
+    }
+
+    private function fillPhoneOf(Student $student): Student
+    {
+        $pdoStatement = $this->pdo->query("SELECT * FROM phones WHERE student_id = ?");
+        $pdoStatement->bindValue(1, $student->id(), PDO::PARAM_INT);
+        $pdoStatement->execute();
+
+        $phones = $pdoStatement->fetchAll();
+
+        if (count($phones)) {
+            foreach ($phones as $phone) {
+                if ($phone['student_id'] === $student->id()) {
+                    $oPhone = new Phone(
+                        $phone['id'], 
+                        $phone['area_code'], 
+                        $phone['number']
+                    );
+
+                    $student->addPhone($oPhone);
+                }
+            }
+        }
+
+        return $student;
     }
 
     public function save(Student $student): bool

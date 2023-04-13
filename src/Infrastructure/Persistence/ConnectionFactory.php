@@ -9,9 +9,12 @@ class ConnectionFactory
 {
     private PDO $connection;
 
-    public function __construct()
+    public function __construct(?PDO $pdo = null)
     {
-        $pathDatabase = __DIR__ . '/../../../database.sqlite';
+        if ($pdo === null) {
+            $pathDatabase = __DIR__ . '/../../../database.sqlite';
+        }
+        
         $this->connection = new PDO("sqlite:{$pathDatabase}");
         $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);

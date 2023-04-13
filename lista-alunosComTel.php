@@ -8,7 +8,7 @@ $conn = new ConnectionFactory();
 $pdo = $conn->getPdo();
 
 $repository = new PdoStudentRepository($pdo);
-$studentList = $repository->allStudents();
+$studentList = $repository->allStudentWithPhones();
 
 var_dump($studentList);
 
